@@ -1,12 +1,6 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Net;
 using System.Net.Http;
-using System.Net.Http.Json;
-using System.Text;
 using System.Threading.Tasks;
 using WpfApp1.Model;
 
@@ -23,7 +17,7 @@ namespace WpfApp1
             };
         }
 
-        public async Task<IEnumerable<User>> GetAsync()
+        public async Task<ObservableCollection<User>> GetAsync()
         {
             var response = await _httpClient.GetAsync("api/User");
             return await response.Content.ReadAsAsync<ObservableCollection<User>>();

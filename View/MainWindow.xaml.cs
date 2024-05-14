@@ -1,9 +1,12 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Linq;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using WpfApp1.Annotations;
+using WpfApp1.Model;
 using WpfApp1.ViewModel;
 
 namespace WpfApp1.View
@@ -37,26 +40,22 @@ namespace WpfApp1.View
             progressBar.Maximum = UsersDataGrid.SelectedItems.Count == 0 ? 1 : UsersDataGrid.SelectedItems.Count;
         }
 
-        private void SearchText_OnTextChanged(object sender, TextChangedEventArgs e)
-        {
-            if (UsersDataGrid.ItemsSource == null)
-            {
-                MessageBox.Show("В таблице отсутствуют данные");
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(ColumnChoose.Text))
-            {
-                MessageBox.Show("Выберите по какой колонке искать");
-                return;
-            }
-
-            MainViewModelVm.Search_Execute();
-        }
-
         private void ColumnChoose_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             MainViewModelVm.SearchedText = "";
+
+            switch (ColumnChoose.SelectedValue)
+            {
+                case "Id":
+                    SearchText.ItemsSource = MainViewModelVm.Users.Select(x => x.Id).ToList();
+                    break;
+                case "Name":
+                    SearchText.ItemsSource = MainViewModelVm.Users.Select(x => x.Name).ToList();
+                    break;
+                case "Email":
+                    SearchText.ItemsSource = MainViewModelVm.Users.Select(x => x.Email).ToList();
+                    break;
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

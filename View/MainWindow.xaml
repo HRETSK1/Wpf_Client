@@ -6,11 +6,17 @@
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:vm="clr-namespace:WpfApp1.ViewModel"
         xmlns:view="clr-namespace:WpfApp1.View"
+        xmlns:app="clr-namespace:WpfApp1"
+        xmlns:toolkit="clr-namespace:System.Windows.Controls;assembly=DotNetProjects.Input.Toolkit"
         xmlns:system="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800"
         DataContext="{Binding Path=MainViewModelVm, RelativeSource={RelativeSource Self}}"
         ResizeMode="NoResize">
+
+    <Window.Resources>
+        <app:BoolToVisibilityConverter x:Key="ToVisibilityConverter"/>
+    </Window.Resources>
 
     <Grid>
         <Grid.ColumnDefinitions>
@@ -20,37 +26,44 @@
             <ColumnDefinition></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="20"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
             <RowDefinition></RowDefinition>
             <RowDefinition Height="Auto"></RowDefinition>
         </Grid.RowDefinitions>
 
         <Label Grid.Row="0" Grid.Column="1"
                Content="Поиск:"
-               HorizontalAlignment="Right"
-               VerticalAlignment="Top"
+               HorizontalAlignment="Right" VerticalAlignment="Center"
                FontWeight="Bold" Margin="0,-5,0,0"
-               ></Label>
+               />
 
-        <TextBox x:Name="SearchText" Grid.Column="2" Grid.Row="0" Width="150" 
-                 HorizontalContentAlignment="Center" HorizontalAlignment="Center" FontSize="15" 
-                 Text="{Binding SearchedText, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" 
-                 TextChanged="SearchText_OnTextChanged"/>
+        <toolkit:AutoCompleteBox x:Name="SearchText" Grid.Column="2" Grid.Row="0" 
+                                 Width="150" Height="25" 
+                                 HorizontalContentAlignment="Center" HorizontalAlignment="Center" FontSize="15" 
+                                 Text="{Binding SearchedText, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                 FilterMode="Contains">
+
+            <toolkit:AutoCompleteBox.InputBindings>
+                <KeyBinding Command="{Binding SearchCommand}" Key="Enter"/>
+            </toolkit:AutoCompleteBox.InputBindings>
+
+        </toolkit:AutoCompleteBox>
 
         <ComboBox x:Name="ColumnChoose" 
                   Grid.Column="3" Grid.Row="0"
-                  Width="100"  
+                  Width="100" Height="25" 
                   HorizontalAlignment="Left"
                   Text="{Binding SelectedColumn}"
                   SelectionChanged="ColumnChoose_OnSelectionChanged">
 
-            <TextBlock>Id</TextBlock>
-            <TextBlock>Name</TextBlock>
-            <TextBlock>Email</TextBlock>
+            <system:String>Id</system:String>
+            <system:String>Name</system:String>
+            <system:String>Email</system:String>
 
         </ComboBox>
 
         <DataGrid x:Name="UsersDataGrid"  
+                  Height="300"
                   SelectedItem="{Binding SelectedUser}" 
                   AutoGenerateColumns="False"
                   ColumnWidth="*"
@@ -58,6 +71,7 @@
                   Grid.ColumnSpan="4"
                   ItemsSource="{Binding Users, UpdateSourceTrigger=PropertyChanged}"
                   IsEnabled="{Binding IsDataLoad, UpdateSourceTrigger=PropertyChanged}">
+
             <DataGrid.Columns>
                 <DataGridTextColumn Binding="{Binding Id, UpdateSourceTrigger=PropertyChanged}" 
                                     Header="Id"
@@ -80,13 +94,12 @@
                     <MenuItem x:Name="Contextmenu_Add"
                               Header="Добавить" 
                               Command="{Binding AddCommand}"
-                              Click="MenuItem_OnClick"></MenuItem>
+                              Click="MenuItem_OnClick"/>
                     <MenuItem x:Name="Contextmenu_Delete"
                               Header="Удалить" 
                               Command="{Binding DeleteCommand}"
                               CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}}, Path=PlacementTarget.SelectedItems}"
-                              Click="MenuItem_OnClick">
-                    </MenuItem>
+                              Click="MenuItem_OnClick"/>
                 </ContextMenu>
 
             </DataGrid.ContextMenu>
@@ -103,8 +116,8 @@
         <ProgressBar x:Name = "progressBar"  Grid.Row="2" Height="10" Width="300"
                      VerticalAlignment="Top" HorizontalAlignment="Center"
                      Value="{Binding ProgressBarValue}"
-                     Grid.Column="1" Grid.ColumnSpan="2">
-        </ProgressBar>
+                     Visibility="{Binding IsProgressBarVisible, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource ToVisibilityConverter}}"
+                     Grid.Column="1" Grid.ColumnSpan="2"/>
     </Grid>
 
 

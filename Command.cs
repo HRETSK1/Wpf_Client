@@ -7,11 +7,13 @@ namespace WpfApp1
     {
         private Action<object> _execute;
         private Func<object, bool> _canExecute;
+
         public Command(Action<object> execute, Func<object, bool> canExecute = null)
         {
             this._execute = execute;
             this._canExecute = canExecute;
         }
+
         public bool CanExecute(object parameter)
         {
             return _canExecute == null || _canExecute(parameter);
@@ -21,6 +23,7 @@ namespace WpfApp1
         {
             _execute(parameter);
         }
+
         public event EventHandler CanExecuteChanged
         {
             add => CommandManager.RequerySuggested += value; 

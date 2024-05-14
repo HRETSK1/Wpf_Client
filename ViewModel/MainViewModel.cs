@@ -18,7 +18,7 @@ namespace WpfApp1.ViewModel
     {
         private Api _api;
 
-        private User _selectedUser;
+        private List<User> _selectedUser;
         private string _selectedColumn;
         private string _searchedText;
         private bool _isDataLoad = false;
@@ -27,10 +27,12 @@ namespace WpfApp1.ViewModel
         private ObservableCollection<User> _defaultUsersCollection;
 
         private int _progressBarValue;
+        private bool _isProgressBarVisible;
 
         private Command _addCommand;
         private Command _editCommand;
         private Command _deleteCommand;
+        private Command _searchCommand;
         public MainViewModel()
         {
             ViewModelInitAsync = MainViewModelAsync();
@@ -62,7 +64,7 @@ namespace WpfApp1.ViewModel
                 OnPropertyChanged("Users");
             }
         }
-        public User SelectedUser
+        public List<User> SelectedUser
         {
             get => _selectedUser;
             set
@@ -89,6 +91,16 @@ namespace WpfApp1.ViewModel
             {
                 _progressBarValue = value;
                 OnPropertyChanged("ProgressBarValue");
+            }
+        }
+
+        public bool IsProgressBarVisible
+        {
+            get => _isProgressBarVisible;
+            set
+            {
+                _isProgressBarVisible = value;
+                OnPropertyChanged("IsProgressBarVisible");
             }
         }
 
@@ -120,7 +132,7 @@ namespace WpfApp1.ViewModel
 
             var newUser = addUserWindow.User;
             var responseMessage = await _api.CreateAsync(newUser);
-
+            var rs = responseMessage.Content.ReadAsStringAsync().Result;
             if (responseMessage.StatusCode == HttpStatusCode.OK)
             {
                 var createdUser = await responseMessage.Content.ReadAsAsync<User>();
@@ -145,38 +157,36 @@ namespace WpfApp1.ViewModel
 
         private async void DeleteCommand_Execute(object selectedUsers)
         {
-            if (selectedUsers is IEnumerable objects)
+            if (selectedUsers is ObservableCollection<User> objects)
             {
-                List<User> users = null;
                 try
                 {
-                     users = new List<User>(objects.Cast<User>());
+                    foreach (var user in objects)
+                    {
+                        var responseMessage = await _api.DeleteAsync(user.Id);
+
+                        if (responseMessage.StatusCode == HttpStatusCode.OK)
+                        {
+                            ProgressBarValue += 1;
+                            Users.Remove(user);
+                            await Task.Delay(1000);
+                        }
+                    }
                 }
                 catch (InvalidCastException)
                 {
                     MessageBox.Show("Непредвиденная ошибка");
-                    return;
                 }
-
-
-                foreach (var user in users)
+                finally
                 {
-                    var responseMessage = await _api.DeleteAsync(user.Id);
-
-                    if (responseMessage.StatusCode == HttpStatusCode.OK)
-                    {
-                        ProgressBarValue += 1;
-                        Users.Remove(user);
-                        await Task.Delay(1000);
-                    }
+                    ProgressBarValue = 0;
+                    IsProgressBarVisible = false;
                 }
-
-                ProgressBarValue = 0;
             }
         }
 
-
-        public void Search_Execute()
+        public Command SearchCommand => _searchCommand ?? (_searchCommand = new Command(Search_Execute));
+        public void Search_Execute(object s)
         {
             switch (SelectedColumn)
             {

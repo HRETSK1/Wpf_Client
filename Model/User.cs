@@ -1,14 +1,14 @@
 ﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.CompilerServices;
-using WpfApp1.Annotations;
 
 namespace WpfApp1.Model
 {
     public class User : INotifyPropertyChanged
     {
         private int _id;
-        [CanBeNull] private string _name;
-        [CanBeNull] private string _email;
+        private string _name;
+        private string _email;
 
         public int Id
         {
@@ -19,7 +19,8 @@ namespace WpfApp1.Model
                 OnPropertyChanged("Id");
             }
         }
-        [CanBeNull]
+
+        [Required]
         public string Name
         {
             get => _name;
@@ -29,7 +30,8 @@ namespace WpfApp1.Model
                 OnPropertyChanged("Name");
             }
         }
-        [CanBeNull]
+
+        [EmailAddress]
         public string Email
         {
             get => _email;
