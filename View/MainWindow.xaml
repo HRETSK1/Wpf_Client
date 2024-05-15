@@ -11,14 +11,15 @@
         xmlns:system="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800"
-        DataContext="{Binding Path=MainViewModelVm, RelativeSource={RelativeSource Self}}"
+        DataContext="{Binding Path=MainVM, RelativeSource={RelativeSource Self}}"
         ResizeMode="NoResize">
 
     <Window.Resources>
         <app:BoolToVisibilityConverter x:Key="ToVisibilityConverter"/>
+        <app:NegativeBoolConverter x:Key="NegativeBoolConverter"/>
     </Window.Resources>
 
-    <Grid>
+    <Grid IsEnabled="{Binding IsDataLoad, UpdateSourceTrigger=PropertyChanged}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition></ColumnDefinition>
             <ColumnDefinition></ColumnDefinition>
@@ -64,13 +65,18 @@
 
         <DataGrid x:Name="UsersDataGrid"  
                   Height="300"
-                  SelectedItem="{Binding SelectedUser}" 
                   AutoGenerateColumns="False"
                   ColumnWidth="*"
                   Grid.Row="1"
                   Grid.ColumnSpan="4"
                   ItemsSource="{Binding Users, UpdateSourceTrigger=PropertyChanged}"
-                  IsEnabled="{Binding IsDataLoad, UpdateSourceTrigger=PropertyChanged}">
+                  IsEnabled="{Binding Path = IsAsyncMethodWorking, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource NegativeBoolConverter}}">
+
+            <DataGrid.Resources>
+                <Style TargetType="DataGridRow">
+                    <Setter Property="IsSelected" Value="{Binding IsSelected}" />
+                </Style>
+            </DataGrid.Resources>
 
             <DataGrid.Columns>
                 <DataGridTextColumn Binding="{Binding Id, UpdateSourceTrigger=PropertyChanged}" 

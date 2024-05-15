@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Linq;
@@ -16,14 +17,14 @@ namespace WpfApp1.View
     /// </summary>
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        MainViewModel _mainViewModel;
+        MainViewModel _mainVM;
 
-        public MainViewModel MainViewModelVm
+        public MainViewModel MainVM
         {
-            get => _mainViewModel;
+            get => _mainVM;
             set
             {
-                _mainViewModel = value;
+                _mainVM = value;
                 OnPropertyChanged();
             }
         }
@@ -31,7 +32,7 @@ namespace WpfApp1.View
         public MainWindow()
         {
             InitializeComponent();
-            MainViewModelVm = new MainViewModel();
+            MainVM = new MainViewModel();
         }
 
         private void MenuItem_OnClick(object sender, RoutedEventArgs e)
@@ -42,18 +43,18 @@ namespace WpfApp1.View
 
         private void ColumnChoose_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            MainViewModelVm.SearchedText = "";
+            MainVM.SearchedText = "";
 
             switch (ColumnChoose.SelectedValue)
             {
                 case "Id":
-                    SearchText.ItemsSource = MainViewModelVm.Users.Select(x => x.Id).ToList();
+                    SearchText.ItemsSource = MainVM.Users.Select(x => x.Id).ToList();
                     break;
                 case "Name":
-                    SearchText.ItemsSource = MainViewModelVm.Users.Select(x => x.Name).ToList();
+                    SearchText.ItemsSource = MainVM.Users.Select(x => x.Name).ToList();
                     break;
                 case "Email":
-                    SearchText.ItemsSource = MainViewModelVm.Users.Select(x => x.Email).ToList();
+                    SearchText.ItemsSource = MainVM.Users.Select(x => x.Email).ToList();
                     break;
             }
         }

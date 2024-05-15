@@ -4,13 +4,12 @@ using System.Windows.Data;
 
 namespace WpfApp1
 {
-    internal class BoolToVisibilityConverter : IValueConverter
+    internal class NegativeBoolConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is bool boolValue)
-                return boolValue ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
-
+            if (value is bool)
+                return !(bool)value;
             return Binding.DoNothing;
         }
 

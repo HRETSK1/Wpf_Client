@@ -18,10 +18,11 @@ namespace WpfApp1.ViewModel
     {
         private Api _api;
 
-        private List<User> _selectedUser;
+        //private List<User> _selectedUsers;
         private string _selectedColumn;
         private string _searchedText;
         private bool _isDataLoad = false;
+        private bool _isAsyncMethodWorking = false;
 
         private ObservableCollection<User> _users;
         private ObservableCollection<User> _defaultUsersCollection;
@@ -35,16 +36,16 @@ namespace WpfApp1.ViewModel
         private Command _searchCommand;
         public MainViewModel()
         {
-            ViewModelInitAsync = MainViewModelAsync();
+            MainViewModelAsync();
         }
 
-        public Task ViewModelInitAsync { get; private set; }
+      //  public Task ViewModelInitAsync { get; private set; }
         private async Task MainViewModelAsync()
         {
             _api = new Api("https://localhost:7294");
             try
             {
-                _defaultUsersCollection = (ObservableCollection<User>)await _api.GetAsync();
+                _defaultUsersCollection = await _api.GetAsync();
             }
             catch (HttpRequestException)
             {
@@ -64,15 +65,15 @@ namespace WpfApp1.ViewModel
                 OnPropertyChanged("Users");
             }
         }
-        public List<User> SelectedUser
-        {
-            get => _selectedUser;
-            set
-            {
-                _selectedUser = value;
-                OnPropertyChanged("SelectedUser");
-            }
-        }
+        //public List<User> SelectedUsers
+        //{
+        //    get => _selectedUsers;
+        //    set
+        //    {
+        //        _selectedUsers = value;
+        //        OnPropertyChanged("SelectedUser");
+        //    }
+        //}
 
         public string SelectedColumn
         {
@@ -101,6 +102,16 @@ namespace WpfApp1.ViewModel
             {
                 _isProgressBarVisible = value;
                 OnPropertyChanged("IsProgressBarVisible");
+            }
+        }
+        
+        public bool IsAsyncMethodWorking
+        {
+            get => _isAsyncMethodWorking;
+            set
+            {
+                _isAsyncMethodWorking = value;
+                OnPropertyChanged("IsAsyncMethodWorking");
             }
         }
 
@@ -157,32 +168,36 @@ namespace WpfApp1.ViewModel
 
         private async void DeleteCommand_Execute(object selectedUsers)
         {
-            if (selectedUsers is ObservableCollection<User> objects)
-            {
-                try
-                {
-                    foreach (var user in objects)
-                    {
-                        var responseMessage = await _api.DeleteAsync(user.Id);
 
-                        if (responseMessage.StatusCode == HttpStatusCode.OK)
-                        {
-                            ProgressBarValue += 1;
-                            Users.Remove(user);
-                            await Task.Delay(1000);
-                        }
+            try
+            {
+                var selectedUsersList = _users.Where(x => x.IsSelected).ToList();
+                IsProgressBarVisible = true;
+                IsAsyncMethodWorking = true;
+                foreach (var user in selectedUsersList)
+                {
+                    var responseMessage = await _api.DeleteAsync(user.Id);
+
+                    if (responseMessage.StatusCode == HttpStatusCode.OK)
+                    {
+                        ProgressBarValue += 1;
+                        Users.Remove(user);
+                        await Task.Delay(1000);
                     }
                 }
-                catch (InvalidCastException)
-                {
-                    MessageBox.Show("Непредвиденная ошибка");
-                }
-                finally
-                {
-                    ProgressBarValue = 0;
-                    IsProgressBarVisible = false;
-                }
+
             }
+            catch (InvalidCastException)
+            {
+                MessageBox.Show("Непредвиденная ошибка");
+            }
+            finally
+            {
+                ProgressBarValue = 0;
+                IsProgressBarVisible = false;
+                IsAsyncMethodWorking = false;
+            }
+
         }
 
         public Command SearchCommand => _searchCommand ?? (_searchCommand = new Command(Search_Execute));

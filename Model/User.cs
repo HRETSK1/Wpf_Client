@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.CompilerServices;
 
@@ -9,6 +10,8 @@ namespace WpfApp1.Model
         private int _id;
         private string _name;
         private string _email;
+
+        private bool _isSelected;
 
         public int Id
         {
@@ -39,6 +42,16 @@ namespace WpfApp1.Model
             {
                 _email = value;
                 OnPropertyChanged("Email");
+            }
+        }
+
+        public bool IsSelected
+        {
+            get { return _isSelected; }
+            set
+            {
+                _isSelected = value;
+                OnPropertyChanged("IsSelected");
             }
         }
 
